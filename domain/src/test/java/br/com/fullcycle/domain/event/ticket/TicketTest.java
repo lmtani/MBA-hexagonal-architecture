@@ -1,7 +1,9 @@
 package br.com.fullcycle.domain.event.ticket;
 
 import br.com.fullcycle.domain.customer.Customer;
+import br.com.fullcycle.domain.customer.CustomerId;
 import br.com.fullcycle.domain.event.Event;
+import br.com.fullcycle.domain.event.EventId;
 import br.com.fullcycle.domain.partner.Partner;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -37,6 +39,39 @@ public class TicketTest {
         Assertions.assertNull(actualTicket.paidAt());
         Assertions.assertEquals(expectedEventId, actualTicket.eventId());
         Assertions.assertEquals(expectedCustomerId, actualTicket.customerId());
+        Assertions.assertEquals(expectedTicketStatus, actualTicket.status());
+    }
+
+    @Test
+    @DisplayName("Deve cancelar um ticket")
+    public void testCancelTicket() throws Exception {
+        // given
+        final var aCustomerId = CustomerId.unique();
+        final var anEventId = EventId.unique();
+        final var expectedTicketStatus = TicketStatus.CANCELLED;
+
+        final var actualTicket = Ticket.newTicket(aCustomerId, anEventId);
+
+        // when
+        actualTicket.cancel();
+
+        // then
+        Assertions.assertEquals(expectedTicketStatus, actualTicket.status());
+    }
+
+    @Test
+    @DisplayName("Deve cancelar um ticket já cancelado sem erro")
+    public void testCancelTicketTwice() throws Exception {
+        // given
+        final var expectedTicketStatus = TicketStatus.CANCELLED;
+
+        final var actualTicket = Ticket.newTicket(CustomerId.unique(), EventId.unique());
+        actualTicket.cancel();
+
+        // when
+        Assertions.assertDoesNotThrow(actualTicket::cancel);
+
+        // then
         Assertions.assertEquals(expectedTicketStatus, actualTicket.status());
     }
 }
